@@ -1,0 +1,3023 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "User Management API",
+        "description": "Haufe's new and improved user management API",
+        "version": "1.0.0"
+    },
+    "host": "api.haufe-lexware.com",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/v1/user_management",
+    "produces": [
+        "application/hal+json",
+        "application/hal+xml"
+    ],
+    "paths": {
+        "/users": {
+            "get": {
+                "summary": "Use this call to get a list of all users in the system, regardless of their state.",
+                "description": "The Users resource is a collection resource that returns a list of the existing users in the system. Pagination is implicit, due to the large number of possible responses. \n",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 10.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "The email of a specific user. Can be used to check if a certain email is registered in the system.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "external_id",
+                        "in": "query",
+                        "description": "External identifier for a user (HAUFE user id).",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "query",
+                        "description": "Identifier for the company. Returns all the users connected with the specified company.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sap_external_user_id",
+                        "in": "query",
+                        "description": "SAP identifier for the user within a company. Can be used with company_id",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sap_external_company_id",
+                        "in": "query",
+                        "description": "SAP identifier for the company. Can be used with sap_external_user_id",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of users matching the query parameters (if any).",
+                        "schema": {
+                            "$ref": "#/definitions/Users"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Use this call to register a new user.",
+                "description": "Call a POST on users to create a new user. If no query parameters are supplied, the default workflow for registration is followed. In order to customize the registration, you should provide one or more of the possible query parameters.\n",
+                "parameters": [
+                    {
+                        "name": "email_sending",
+                        "in": "query",
+                        "description": "Specifies if an activation email should be sent.",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "partner_id",
+                        "in": "query",
+                        "description": "The identifier for the partner this user should be associated with.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email_delay",
+                        "in": "query",
+                        "description": "Specifies the amount of time after which the activation email should be sent.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "service",
+                        "in": "query",
+                        "description": "the skin to be used when sending the email",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "pr_success",
+                        "in": "query",
+                        "description": "location to be included in the email link",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "pr_cancel",
+                        "in": "query",
+                        "description": "location to be included in the email link",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "goto",
+                        "in": "query",
+                        "description": "URL to be used for redirect in case of successful reset (included in the email)",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "goto_on_fail",
+                        "in": "query",
+                        "description": "URL to be used for redirect in case of unsuccessful reset (included in the email)",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "description": "Data for the user registration",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/UserRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "User"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The user that was created including a link to the single user resource.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "The User endpoint returns information about the user account.",
+                "summary": "User account information, including state.",
+                "tags": [
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User data, including links to the sub-resources and possible further operations.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found if no user exists for the given user identifier",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "fields",
+                        "in": "query",
+                        "description": "A comma-separated list of fields that should be included in the response (e.g. fields=user_name,emails,state). If specified the response will only contain those fields.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "extended",
+                        "in": "query",
+                        "description": "Return the full user information (including subresources data). Defaults to false.",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Updates the entire user entity.",
+                "summary": "Updates the entire user entity.",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User data was updated."
+                    },
+                    "400": {
+                        "description": "User data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates parts of the user entity (just the provided fields).",
+                "summary": "Call this methods to make partial updates to the user data.",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserPatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User data was updated."
+                    },
+                    "400": {
+                        "description": "User data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/address": {
+            "get": {
+                "summary": "Returns the address associated with this user account",
+                "description": "Call this resource to get the user address information",
+                "tags": [
+                    "Address",
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User address information.",
+                        "schema": {
+                            "$ref": "#/definitions/UserAddress"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create a new user address.",
+                "summary": "Allows the creation of a new address",
+                "tags": [
+                    "Address",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "body",
+                        "description": "Address information (the address identifier is not included in the request)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserAddressRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Address was created.",
+                        "schema": {
+                            "$ref": "#/definitions/UserAddress"
+                        }
+                    },
+                    "400": {
+                        "description": "User address was not created (due to insufficient information - mandatory fields not present in the request).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the entire address.",
+                "summary": "Use this resource to modify the entire address for the user.",
+                "tags": [
+                    "Address",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "body",
+                        "description": "Address information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserAddressRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was updated."
+                    },
+                    "400": {
+                        "description": "Address data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the address.",
+                "summary": "Use this resource to remove the address",
+                "tags": [
+                    "Address",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was deleted."
+                    }
+                }
+            }
+        },
+        "/users/{id}/companies": {
+            "get": {
+                "summary": "Returns all the companies this user account is associated with.",
+                "description": "Call this method to get a list of all the companies the user account is associated with.",
+                "tags": [
+                    "User",
+                    "Company"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User companies list.",
+                        "schema": {
+                            "$ref": "#/definitions/UserCompanies"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 10.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "external_company_id",
+                        "in": "query",
+                        "description": "Return only the company matching the external id value.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "sap_external_user_id",
+                        "in": "query",
+                        "description": "Return only the company matching the external user id value in connection to the user. Can be used together with the external_company_id parameter.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "id_mapped",
+                        "in": "query",
+                        "description": "Return only the company (if any) that is id mapped.",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create a new user - company association. If there is no company in the system that matches the external_company_id (if one is provided), then a new company created.",
+                "summary": "Allows the creation of a user - company association",
+                "tags": [
+                    "Company",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "description": "User company information (the company identifier might not included in the request)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCompanyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User company association was created.",
+                        "schema": {
+                            "$ref": "#/definitions/UserCompany"
+                        }
+                    },
+                    "400": {
+                        "description": "Company data was not created (mandatory information was not sent in the request or there was an error with the data in the request - e.g. the id provided for the company was not a valid identifier or there is no company identified by the provided value).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/companies/{company_id}": {
+            "get": {
+                "summary": "Returns the company identified by the identifier in the path",
+                "description": "Call this resource to get the user company information",
+                "tags": [
+                    "Company",
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User company information.",
+                        "schema": {
+                            "$ref": "#/definitions/UserCompany"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Updates the entire company.",
+                "summary": "Use this resource to modify the entire company information.",
+                "tags": [
+                    "Company",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company",
+                        "in": "body",
+                        "description": "Company information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCompany"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Company data was updated."
+                    },
+                    "400": {
+                        "description": "Company data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the user-company relationship.",
+                "summary": "Use this resource to remove the company from the user list of companies",
+                "tags": [
+                    "Company",
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Company data was deleted."
+                    }
+                }
+            }
+        },
+        "/users/{id}/state": {
+            "post": {
+                "summary": "Allows the change of a user state.",
+                "description": "Call this method to change the user state. The following transitions are available PENDING-ACTIVE (also referred to as activation, the transition information should contain the activation code as well as additional information regarding sending out the confirmation email), PENDING/ACTIVE to BLOCKED (block the user, due to invalid contact information), BLOCKED to PENDING (unblock the user).",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "description": "User state information. Includes different information regarding the transition.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/State"
+                        }
+                    },
+                    {
+                        "name": "email_sending",
+                        "in": "query",
+                        "description": "Specifies if an email should be sent.",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User state change was done successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/State"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if there is a problem with the information in the request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/reset_password": {
+            "get": {
+                "summary": "Returns a valid reset code",
+                "description": "Call this resource to get reset code to use in order to reset the password to a new value.",
+                "tags": [
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User state information.",
+                        "schema": {
+                            "$ref": "#/definitions/ActionResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "the email of the user account",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email_sending",
+                        "in": "query",
+                        "description": "whether or not an email should be sent, defaults to true",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "service",
+                        "in": "query",
+                        "description": "the skin to be used when sending the email",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "pr_success",
+                        "in": "query",
+                        "description": "location to be included in the email link",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "pr_cancel",
+                        "in": "query",
+                        "description": "location to be included in the email link",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "goto",
+                        "in": "query",
+                        "description": "URL to be used for redirect in case of successful reset (included in the email)",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "goto_on_fail",
+                        "in": "query",
+                        "description": "URL to be used for redirect in case of unsuccessful reset (included in the email)",
+                        "required": false,
+                        "type": "string"
+                    }
+                ]
+            },
+            "post": {
+                "summary": "Allows the change of the user's password to the given value.",
+                "description": "Call this method to reset the user's password to a given value.",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "description": "User state information. Includes different information regarding the transition.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordResetRequest"
+                        }
+                    },
+                    {
+                        "name": "email_sending",
+                        "in": "query",
+                        "description": "specifies if a confirmation email should be sent in case of success",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User password reset was done successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ActionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if there is a problem with the information in the request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/change_password": {
+            "post": {
+                "summary": "Allows the change of the user's password to the given value.",
+                "description": "Call this method to change the user's password to a given value.",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email_sending",
+                        "in": "query",
+                        "description": "the email of the user account",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "description": "User password information including the old value and the new value.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordChangeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User password change was done successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ActionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if there is a problem with the information in the request.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies": {
+            "get": {
+                "summary": "Returns all the companies in the system.",
+                "description": "Call this method to get a list of all the companies in the system.",
+                "tags": [
+                    "Company"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Companies list.",
+                        "schema": {
+                            "$ref": "#/definitions/Companies"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 10.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "external_company_id",
+                        "in": "query",
+                        "description": "Return only the company matching the external id value.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company_name",
+                        "in": "query",
+                        "description": "Return only the company matching the company name.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "street",
+                        "in": "query",
+                        "description": "Filter by street name.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "postal_code",
+                        "in": "query",
+                        "description": "Filter by postal code.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Filter by city.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "extended",
+                        "in": "query",
+                        "description": "Return the full company information (including addresses and payment method). Defaults to false.",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create a company.",
+                "summary": "Allows the creation of a new company.",
+                "tags": [
+                    "Company"
+                ],
+                "parameters": [
+                    {
+                        "name": "company",
+                        "in": "body",
+                        "description": "Company information (the company identifier is not included in the request)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CompanyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Company was created.",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    },
+                    "400": {
+                        "description": "Company data was not created (mandatory information was not sent in the request).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}": {
+            "get": {
+                "summary": "Returns the company identified by the identifier in the path",
+                "description": "Call this resource to get the company information",
+                "tags": [
+                    "Company"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Company information.",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Updates the entire company.",
+                "summary": "Use this resource to modify the entire company information.",
+                "tags": [
+                    "Company"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "company",
+                        "in": "body",
+                        "description": "Company information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CompanyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Company data was updated."
+                    },
+                    "400": {
+                        "description": "Company data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the company.",
+                "summary": "Use this resource to remove the company from the system",
+                "tags": [
+                    "Company"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Company data was deleted."
+                    },
+                    "400": {
+                        "description": "Company data was not deleted due to validation errors (there are still users connected to the company, for instance).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}/payment_method": {
+            "get": {
+                "summary": "Returns the payment method for the company.",
+                "description": "Call this resource to get the payment method information",
+                "tags": [
+                    "Company",
+                    "Payment Method"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment method information.",
+                        "schema": {
+                            "$ref": "#/definitions/PaymentMethod"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create a payment method.",
+                "summary": "Allows the creation of a new payment method.",
+                "tags": [
+                    "Company",
+                    "Payment Method"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "payment_method",
+                        "in": "body",
+                        "description": "Payment method information (the payment method identifier is not included in the request)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PaymentMethodRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment method was created.",
+                        "schema": {
+                            "$ref": "#/definitions/PaymentMethod"
+                        }
+                    },
+                    "400": {
+                        "description": "Payment data was not created (mandatory information was not sent in the request).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the entire payment method.",
+                "summary": "Use this resource to modify the entire payment information.",
+                "tags": [
+                    "Company",
+                    "Payment Method"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "payment_method",
+                        "in": "body",
+                        "description": "Payment method information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PaymentMethod"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Payment data was updated."
+                    },
+                    "400": {
+                        "description": "Payment data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the payment method.",
+                "summary": "Use this resource to remove the payment method from the system",
+                "tags": [
+                    "Company",
+                    "Payment Method"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Payment data was deleted."
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}/addresses": {
+            "get": {
+                "summary": "Returns all the addresses for the company.",
+                "description": "Call this method to get a list of all addresses for the company. There will be one per type.",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Address list.",
+                        "schema": {
+                            "$ref": "#/definitions/Addresses"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 10.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Address type, can be billing or shipping",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "primary",
+                        "in": "query",
+                        "description": "Flag that marks the address as preferred for the given type. Can be used together with type.",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create a new address.",
+                "summary": "Allows the creation of a new address.",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "body",
+                        "description": "Address information (the address identifier is not included in the request)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AddressRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Address was created.",
+                        "schema": {
+                            "$ref": "#/definitions/Address"
+                        }
+                    },
+                    "400": {
+                        "description": "Address was not created (mandatory information was not sent in the request).",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}/addresses/billing": {
+            "get": {
+                "summary": "Returns the address identified by the identifier in the path",
+                "description": "Call this resource to get the address information",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Address information.",
+                        "schema": {
+                            "$ref": "#/definitions/Address"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Updates the entire address.",
+                "summary": "Use this resource to modify the entire address.",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "body",
+                        "description": "Address information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was updated."
+                    },
+                    "400": {
+                        "description": "Address data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the address.",
+                "summary": "Use this resource to remove the adddress from the system",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was deleted."
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}/addresses/shipping": {
+            "get": {
+                "summary": "Returns the address identified by the identifier in the path",
+                "description": "Call this resource to get the address information",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Address information.",
+                        "schema": {
+                            "$ref": "#/definitions/Address"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Updates the entire address.",
+                "summary": "Use this resource to modify the entire address.",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "address",
+                        "in": "body",
+                        "description": "Address information, including identifiers",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was updated."
+                    },
+                    "400": {
+                        "description": "Address data was not updated, due to validation errors or there was an attempt to modify read-oly fields.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the address.",
+                "summary": "Use this resource to remove the adddress from the system",
+                "tags": [
+                    "Company",
+                    "Address"
+                ],
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Address data was deleted."
+                    }
+                }
+            }
+        },
+        "/companies/{company_id}/users": {
+            "get": {
+                "summary": "Returns all the users associated with this company.",
+                "description": "Call this method to get a list of all users associated with the company.",
+                "tags": [
+                    "Company",
+                    "User"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User list.",
+                        "schema": {
+                            "$ref": "#/definitions/Users"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request if invalid values are used for query parameters.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "company_id",
+                        "in": "path",
+                        "description": "ID of the company",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 10.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "sap_external_user_id",
+                        "in": "query",
+                        "description": "Contact person number from SAP",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "given_name",
+                        "in": "query",
+                        "description": "First name of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "family_name",
+                        "in": "query",
+                        "description": "Surname of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "external_user_id",
+                        "in": "query",
+                        "description": "Haufe user id",
+                        "required": false,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/users/searches": {
+            "post": {
+                "description": "Create a new search.",
+                "summary": "Allows the creation of a new search.",
+                "tags": [
+                    "User",
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "body",
+                        "description": "Search criteria",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Search was created. Contains a link to the location where the results can be collected.",
+                        "schema": {
+                            "$ref": "#/definitions/UserSearch"
+                        }
+                    },
+                    "400": {
+                        "description": "The search was not created.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/searches/{id}": {
+            "get": {
+                "description": "The searches endpoint returns the response to the search identified by the id",
+                "summary": "User account information, including state.",
+                "tags": [
+                    "User",
+                    "Search"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The response to the search.",
+                        "schema": {
+                            "$ref": "#/definitions/UserSearchResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found if no search exists for the given identifier",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the search",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 500.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ]
+            }
+        },
+        "/companies/searches": {
+            "post": {
+                "description": "Create a new search.",
+                "summary": "Allows the creation of a new search for companies.",
+                "tags": [
+                    "Company",
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "body",
+                        "description": "Search criteria",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CompanySearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Search was created. Contains a link to the location where the results can be collected.",
+                        "schema": {
+                            "$ref": "#/definitions/CompanySearch"
+                        }
+                    },
+                    "400": {
+                        "description": "The search was not created.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/searches/{id}": {
+            "get": {
+                "description": "The searches endpoint returns the response to the search identified by the id",
+                "summary": "User account information, including state.",
+                "tags": [
+                    "User",
+                    "Search"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The response to the search.",
+                        "schema": {
+                            "$ref": "#/definitions/CompanySearchResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found if no search exists for the given identifier",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the search",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Requested page number. Defaults to 1.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Amount of results per page. Defaults to 500.",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "Users": {
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedUsersArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedUsersArray": {
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/User"
+                    }
+                }
+            }
+        },
+        "UserRequest": {
+            "description": "Representation of a user account.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The unique identifier of the user account"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "Former HAUFE identifier (HUID)"
+                },
+                "user_name": {
+                    "type": "string",
+                    "description": "Can be the email address or another human readable identifier for the user"
+                },
+                "name": {
+                    "$ref": "#/definitions/Name",
+                    "description": "Components of the user real name."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "User's title, such as Doctor."
+                },
+                "state": {
+                    "type": "object",
+                    "description": "State of the user account (Active, Pending, Blocked)",
+                    "$ref": "#/definitions/State"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Identifies the user in relationship with the organization (e.g. Normal employee, Journalist, Editor, Marketing, Key account)"
+                },
+                "locale": {
+                    "type": "string",
+                    "description": "User's default location."
+                },
+                "timezone": {
+                    "type": "string",
+                    "description": "User's timezone."
+                },
+                "emails": {
+                    "description": "A list of emails and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "phones": {
+                    "description": "A list of phone numbers and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "additional_info": {
+                    "description": "additional info",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/AdditionalInfo"
+                    }
+                },
+                "display_name": {
+                    "type": "string",
+                    "description": "Name of the user, suitable for display. Can be the formatted name, the user name or email."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The datetime when the user was created."
+                },
+                "last_modified": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The datetime when the user data was updated."
+                },
+                "sap_external_id": {
+                    "type": "string",
+                    "description": "External identifier of the relationship between the user account and the company (in SAP). The value for this field is returned only when a company is specified (query parameter or path parameter)."
+                }
+            }
+        },
+        "UserPatchRequest": {
+            "description": "User properties that can be modified via a partial update.",
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/Name",
+                    "description": "Components of the user real name."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "User's title, such as Doctor."
+                },
+                "emails": {
+                    "description": "A list of emails and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "phones": {
+                    "description": "A list of phone numbers and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "additional_info": {
+                    "description": "additional info",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/AdditionalInfo"
+                    }
+                }
+            }
+        },
+        "User": {
+            "description": "Representation of a user account.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The unique identifier of the user account"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "Former HAUFE identifier (HUID)"
+                },
+                "user_name": {
+                    "type": "string",
+                    "description": "Can be the email address or another human readable identifier for the user"
+                },
+                "name": {
+                    "$ref": "#/definitions/Name",
+                    "description": "Components of the user real name."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "User's title, such as Doctor."
+                },
+                "state": {
+                    "type": "object",
+                    "description": "State of the user account (Active, Pending, Blocked)",
+                    "$ref": "#/definitions/State"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Identifies the user in relationship with the organization (e.g. Normal employee, Journalist, Editor, Marketing, Key account)"
+                },
+                "locale": {
+                    "type": "string",
+                    "description": "User's default location."
+                },
+                "timezone": {
+                    "type": "string",
+                    "description": "User's timezone."
+                },
+                "emails": {
+                    "description": "A list of emails and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "phones": {
+                    "description": "A list of phone numbers and their type",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "additional_info": {
+                    "description": "additional info",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/AdditionalInfo"
+                    }
+                },
+                "display_name": {
+                    "type": "string",
+                    "description": "Name of the user, suitable for display. Can be the formatted name, the user name or email."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The datetime when the user was created."
+                },
+                "last_modified": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The datetime when the user data was updated."
+                },
+                "sap_external_id": {
+                    "type": "string",
+                    "description": "External identifier of the relationship between the user account and the company (in SAP). The value for this field is returned only when a company is specified (query parameter or path parameter)."
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "Attribute": {
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "Actual information for the attribute (e.g. the phone number, email address, etc)."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Label that indicates the function of the attribute (e.g. email, phone, account info)."
+                },
+                "primary": {
+                    "type": "boolean",
+                    "description": "Boolean value indicating that this value is the primary or preferred one for this type of attribute (e.g. primary email address)."
+                },
+                "display": {
+                    "type": "string",
+                    "description": "Human readable form of the attribute, used for display purposes."
+                }
+            }
+        },
+        "State": {
+            "description": "Contains the details of the user state. Includes redirect link for certain states (pending, blocked).",
+            "type": "object",
+            "properties": {
+                "state": {
+                    "type": "string",
+                    "description": "Pending (not yet activated user), Active (full fledged user), Blocked (account suspended) or Offline"
+                },
+                "last_modified": {
+                    "type": "string",
+                    "description": "Timestamp of the latest change of the user state."
+                },
+                "additional_info": {
+                    "type": "array",
+                    "description": "Additional information regarding the current state (e.g. for PENDING it can contain the activation code and activation link, for BLOCKED it can contain the block reason).",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/AdditionalInfo"
+                    }
+                }
+            }
+        },
+        "AdditionalInfo": {
+            "description": "Additional information regarding the user account (key, value pairs)",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the additional property (e.g. External customer id)"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "Value of the additional property (e.g. 100100 for the External customer id)"
+                }
+            }
+        },
+        "Name": {
+            "properties": {
+                "formatted": {
+                    "type": "string",
+                    "description": "The full name, including all middle names, titles, and suffixes as appropriate, formatted for display (e.g. Ms. Barbara Jane Jensen, III.)"
+                },
+                "given_name": {
+                    "type": "string",
+                    "description": "First name of the user."
+                },
+                "family_name": {
+                    "type": "string",
+                    "description": "Surname of the user."
+                },
+                "middle_name": {
+                    "type": "string",
+                    "description": "Middle name of the user."
+                },
+                "honorific_prefix": {
+                    "type": "string",
+                    "description": "Honorific prefix(es) of the user."
+                },
+                "honorific_suffix": {
+                    "type": "string",
+                    "description": "Honorific suffix(es) of the user."
+                }
+            }
+        },
+        "UserAddressRequest": {
+            "description": "A physical address for the user account.",
+            "type": "object",
+            "properties": {
+                "street_address": {
+                    "type": "string",
+                    "description": "Full street address, which may include house number, street name, P.O. box, and multi-line extended street address information."
+                },
+                "locality": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "region": {
+                    "type": "string",
+                    "description": "State or region"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Zipcode or postal code"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                }
+            }
+        },
+        "UserAddress": {
+            "description": "A physical address for the user account.",
+            "type": "object",
+            "properties": {
+                "street_address": {
+                    "type": "string",
+                    "description": "Full street address, which may include house number, street name, P.O. box, and multi-line extended street address information."
+                },
+                "locality": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "region": {
+                    "type": "string",
+                    "description": "State or region"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Zipcode or postal code"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                },
+                "formatted": {
+                    "type": "string",
+                    "description": "Full address, formatted for display. Can contain newlines."
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "UserCompanies": {
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedUserCompanyArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedUserCompanyArray": {
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UserCompany"
+                    }
+                }
+            }
+        },
+        "UserCompanyRequest": {
+            "description": "Company a user account is connected with. Contains information pertaining to the relationship (contact number, id mapping flag)",
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string",
+                    "description": "the name of the company"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "sap identifier for the company"
+                },
+                "department": {
+                    "type": "string",
+                    "description": "department"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "id of the debitor"
+                },
+                "external_id_mapped": {
+                    "type": "string",
+                    "description": "Indicator of the mapping of this relationship (the user account has special rights within the organization)"
+                },
+                "sap_external_user_id": {
+                    "type": "string",
+                    "description": "External identifier of the relationship between the user account and the company (in SAP)"
+                }
+            }
+        },
+        "UserCompany": {
+            "description": "Company a user account is connected with. Contains information pertaining to the relationship (contact number, id mapping flag)",
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string",
+                    "description": "the name of the company"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "sap identifier for the company"
+                },
+                "department": {
+                    "type": "string",
+                    "description": "department"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "id of the debitor"
+                },
+                "last_modified": {
+                    "type": "string",
+                    "description": "last modified timestamp"
+                },
+                "external_id_mapped": {
+                    "type": "string",
+                    "description": "Indicator of the mapping of this relationship (the user account has special rights within the organization)"
+                },
+                "sap_external_user_id": {
+                    "type": "string",
+                    "description": "External identifier of the relationship between the user account and the company (in SAP)"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "Companies": {
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedCompanyArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedCompanyArray": {
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Company"
+                    }
+                }
+            }
+        },
+        "CompanyRequest": {
+            "description": "Business entity that a user can be associated with",
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string",
+                    "description": "the name of the company"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "sap identifier for the company"
+                },
+                "department": {
+                    "type": "string",
+                    "description": "department"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "id of the debitor (needed for PUT, not mandatory for POST)"
+                }
+            }
+        },
+        "Company": {
+            "description": "Business entity that a user can be associated with",
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string",
+                    "description": "the name of the company"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "sap identifier for the company"
+                },
+                "department": {
+                    "type": "string",
+                    "description": "department"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "id of the debitor"
+                },
+                "last_modified": {
+                    "type": "string",
+                    "description": "last modified timestamp"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "PaymentMethodRequest": {
+            "description": "Payment information for a company",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Either invoice or debit"
+                },
+                "iban": {
+                    "type": "string",
+                    "description": "International Bank Account Number"
+                },
+                "bic": {
+                    "type": "string",
+                    "description": "Bank Identifier Code"
+                },
+                "bank_code": {
+                    "type": "string",
+                    "description": "Bank code"
+                },
+                "account_number": {
+                    "type": "string",
+                    "description": "Account number"
+                },
+                "account_owner": {
+                    "type": "string",
+                    "description": "Name of the account owner"
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                }
+            }
+        },
+        "PaymentMethod": {
+            "description": "Payment information for a company",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Either invoice or debit"
+                },
+                "iban": {
+                    "type": "string",
+                    "description": "International Bank Account Number"
+                },
+                "bic": {
+                    "type": "string",
+                    "description": "Bank Identifier Code"
+                },
+                "bank_code": {
+                    "type": "string",
+                    "description": "Bank code"
+                },
+                "account_number": {
+                    "type": "string",
+                    "description": "Account number"
+                },
+                "account_owner": {
+                    "type": "string",
+                    "description": "Name of the account owner"
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "AddressRequest": {
+            "description": "A physical address for the company. Can be delivery or billing.",
+            "type": "object",
+            "properties": {
+                "line1": {
+                    "type": "string",
+                    "description": "First line of the address (street, street number or pobox). Required."
+                },
+                "line2": {
+                    "type": "string",
+                    "description": "Second line (contains appartment or house number). Optional."
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "region": {
+                    "type": "string",
+                    "description": "State or region"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Zipcode or postal code"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "One of shipping or billing."
+                },
+                "company": {
+                    "type": "string",
+                    "description": "Name of the company"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "Contact person's first name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Contact person's last name"
+                }
+            }
+        },
+        "Address": {
+            "description": "A physical address for the company. Can be delivery or billing.",
+            "type": "object",
+            "properties": {
+                "line1": {
+                    "type": "string",
+                    "description": "First line of the address (street, street number or pobox). Required."
+                },
+                "line2": {
+                    "type": "string",
+                    "description": "Second line (contains appartment or house number). Optional."
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "region": {
+                    "type": "string",
+                    "description": "State or region"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Zipcode or postal code"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "The country code (as defined in ISO-3166-1 format)"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "One of shipping or billing."
+                },
+                "company": {
+                    "type": "string",
+                    "description": "Name of the company"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "Contact person's first name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Contact person's last name"
+                },
+                "primary": {
+                    "type": "boolean",
+                    "description": "Boolean value indicating that this value is the primary or preferred one"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "Addresses": {
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedCompanyAddressArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedCompanyAddressArray": {
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Address"
+                    }
+                }
+            }
+        },
+        "UserSearchRequest": {
+            "description": "Fields to be included in the search criteria",
+            "type": "object",
+            "properties": {
+                "given_name": {
+                    "type": "string",
+                    "description": "First name of the user"
+                },
+                "family_name": {
+                    "type": "string",
+                    "description": "Last name"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email / user_name"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "description": "Phone number"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "HUID"
+                },
+                "street": {
+                    "type": "string",
+                    "description": "Street name"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Postal code"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "User type (free, etc)"
+                },
+                "ids": {
+                    "type": "array",
+                    "description": "List of user ids",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "external_ids": {
+                    "type": "array",
+                    "description": "List of external user ids (HUIDs)",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "emails": {
+                    "type": "array",
+                    "description": "List of emails",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "UserSearch": {
+            "description": "Fields to be included in the search criteria",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Identifier for the search"
+                },
+                "given_name": {
+                    "type": "string",
+                    "description": "First name of the user"
+                },
+                "family_name": {
+                    "type": "string",
+                    "description": "Last name"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email / user_name"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "description": "Phone number"
+                },
+                "external_id": {
+                    "type": "string",
+                    "description": "HUID"
+                },
+                "street": {
+                    "type": "string",
+                    "description": "Street name"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Postal code"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "User type (free, etc)"
+                },
+                "ids": {
+                    "type": "array",
+                    "description": "List of user ids",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "external_ids": {
+                    "type": "array",
+                    "description": "List of external user ids (HUIDs)",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "emails": {
+                    "type": "array",
+                    "description": "List of emails",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "UserSearchResponse": {
+            "description": "List of users matching the search criteria",
+            "type": "object",
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedUserExtendedArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedUserExtendedArray": {
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UserExtended"
+                    }
+                }
+            }
+        },
+        "UserExtended": {
+            "description": "User with address",
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/User"
+                },
+                "address": {
+                    "type": "object",
+                    "$ref": "#/definitions/UserAddress"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "PasswordResetRequest": {
+            "description": "Information for resetting the password for a user",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "Identifier for the user account"
+                },
+                "reset_code": {
+                    "type": "string",
+                    "description": "Reset code to allow the operation"
+                },
+                "new_password": {
+                    "type": "string",
+                    "description": "Value to which the password should be reset to"
+                }
+            }
+        },
+        "PasswordChangeRequest": {
+            "description": "Information for changing the password for a user",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "Identifier for the user account"
+                },
+                "old_password": {
+                    "type": "string",
+                    "description": "Current password for the user account"
+                },
+                "new_password": {
+                    "type": "string",
+                    "description": "New value for the password"
+                }
+            }
+        },
+        "ActionResponse": {
+            "description": "Information about the action request that was performed",
+            "type": "object",
+            "properties": {
+                "information": {
+                    "type": "string",
+                    "description": "Additional information about the outcome of the operation."
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "Error": {
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "Human readable name of the error"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorDetail"
+                    }
+                }
+            }
+        },
+        "ErrorDetail": {
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "Human readable name of the error"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "CompanySearchRequest": {
+            "description": "Fields to be included in the search criteria",
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string",
+                    "description": "Name of the company"
+                },
+                "street": {
+                    "type": "string",
+                    "description": "street"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Postal code"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "description": "Phone number"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "external_company_id": {
+                    "type": "string",
+                    "description": "Company external identifier (in SAP)"
+                }
+            }
+        },
+        "CompanySearch": {
+            "description": "Fields to be included in the search criteria",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Identifier for the search"
+                },
+                "company_name": {
+                    "type": "string",
+                    "description": "Name of the company"
+                },
+                "street": {
+                    "type": "string",
+                    "description": "street"
+                },
+                "postal_code": {
+                    "type": "string",
+                    "description": "Postal code"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "description": "Phone number"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City"
+                },
+                "external_company_id": {
+                    "type": "string",
+                    "description": "Company external identifier (in SAP)"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "CompanySearchResponse": {
+            "description": "List of companies matching the search criteria",
+            "type": "object",
+            "properties": {
+                "total_count": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Total items in the collection."
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The total number of pages (total_items/page_size)."
+                },
+                "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The current page number."
+                },
+                "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The number of items on a page."
+                },
+                "_embedded": {
+                    "type": "object",
+                    "$ref": "#/definitions/EmbeddedCompanyExtendedArray"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "EmbeddedCompanyExtendedArray": {
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CompanyExtended"
+                    }
+                }
+            }
+        },
+        "CompanyExtended": {
+            "description": "Company with address",
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/Company"
+                },
+                "address": {
+                    "type": "object",
+                    "$ref": "#/definitions/Address"
+                },
+                "_links": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Link"
+                    }
+                }
+            }
+        },
+        "Link": {
+            "description": "Provides information for a linkage to a future call.",
+            "properties": {
+                "href": {
+                    "type": "string",
+                    "description": "Fully formed target URL that can be used for subsequent calls."
+                },
+                "rel": {
+                    "type": "string",
+                    "description": "Relation type for the URL in question (see IANA possible values)."
+                },
+                "templated": {
+                    "type": "boolean",
+                    "description": "Whether the the link uses URI templates (RFC 6570)."
+                }
+            }
+        }
+    }
+}
